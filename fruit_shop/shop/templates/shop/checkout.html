@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Checkout</title>
+</head>
+<body>
+<h2>Checkout Page</h2>
+<form method="POST" action="{% url 'process_checkout' %}">
+    {% csrf_token %}
+    <label>Full Name:</label>
+    <input type="text" name="full_name" required>
+
+    <label>Address:</label>
+    <textarea name="address" required></textarea>
+
+    <label>Payment Method:</label>
+    <select name="payment_method">
+        <option value="cod">Cash on Delivery</option>
+        <option value="upi">UPI</option>
+        <option value="debit_card">Debit Card</option>
+        <option value="credit_card">Credit Card</option>
+    </select>
+
+    <!--        <button type="submit">Place Order</button>-->
+    <button>
+        <span class="transition"></span>
+        <span class="gradient"></span>
+        <span class="label">Place Order</span>
+    </button>
+</form>
+</body>
+</html>
