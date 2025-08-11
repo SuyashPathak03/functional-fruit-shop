@@ -1,0 +1,1 @@
+web: gunicorn fruit_shop.fruit_shop.wsgi
