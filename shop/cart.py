@@ -1,0 +1,86 @@
+from .models import Fruit
+
+
+class Cart:
+    def __init__(self, request):
+        """Initialize the cart using the session"""
+        self.session = request.session
+        cart = self.session.get("cart")
+        if not cart:
+            cart = self.session["cart"] = {}  # Create an empty cart
+        self.cart = cart
+
+    def add(self, fruit, quantity=1):
+        """Add fruit to cart (or update quantity)"""
+        fruit_id = str(fruit.id)
+
+        if fruit_id in self.cart:
+            self.cart[fruit_id]["quantity"] += quantity
+        else:
+            self.cart[fruit_id] = {
+                "name": fruit.name,
+                "price": str(fruit.price),  # Convert to string for session storage
+                "quantity": quantity,
+                "image": fruit.image,
+            }
+
+        self.save()
+
+    def remove(self, fruit):
+        """Remove fruit from cart"""
+        fruit_id = str(fruit.id)
+        if fruit_id in self.cart:
+            del self.cart[fruit_id]
+            self.save()
+
+    def save(self):
+        """Save cart data in session"""
+        self.session.modified = True
+
+    def get_items(self):
+        """Get all cart items"""
+        return self.cart.values()
+
+    def update(self, fruit, quantity):
+        """ ✅ Update item quantity in the cart """
+        fruit_id = str(fruit.id)
+        if fruit_id in self.cart:
+            if quantity > 0:
+                self.cart[fruit_id]["quantity"] = quantity
+            else:
+                del self.cart[fruit_id]  # ✅ Remove item if quantity is 0
+            self.session["cart"] = self.cart
+            self.session.modified = True
+        else:
+            print("Error: Fruit not found in cart")  # ✅ Debugging message
+
+    @property
+    def items(self):
+        """Returns a list of cart items."""
+        cart_items = []
+        for fruit_id, item in self.cart.items():
+            fruit = Fruit.objects.get(id=fruit_id)  # Ensure this is optimized if needed
+            cart_items.append({
+                "id": fruit_id,
+                "name": item["name"],
+                "price": item["price"],
+                "quantity": item["quantity"]
+            })
+        return cart_items
+
+    @property
+    def total(self):
+        total_price = 0
+        for item in self.cart.values():
+            total_price += float(item["price"]) * int(item["quantity"])
+        return total_price
+
+    def clear(self):
+        """Empty the cart"""
+        self.session["cart"] = {}
+        self.save()
+
+    def __len__(self):
+        """Return total quantity of items in the cart"""
+        return sum(item["quantity"] for item in self.cart.values())  # Fix len(cart)
+

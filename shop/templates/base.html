@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fruit Shop</title>
+    <style>
+       /* ✅ General Fixes */
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    padding: 20px;
+}
+
+/* ✅ Navbar Styling */
+nav {
+    background: #f8b400;
+    padding: 10px;
+}
+
+nav a {
+    margin-right: 10px;
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+}
+
+/* ✅ Cart Container - Holds the Cart and Dropdown */
+.cart-container {
+    position: relative;
+    display: inline-block;
+}
+
+/* ✅ Cart Dropdown - Initially Hidden */
+.cart-dropdown {
+    display: none;
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ddd;
+    width: 250px;
+    right: 0;
+    z-index: 1000;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    border-radius: 5px;
+}
+
+/* ✅ Ensures the List Inside the Cart Looks Neat */
+.cart-dropdown ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+
+}
+
+/* ✅ Fixes the Hover Issue - Ensures Dynamic Update */
+.cart-container:hover .cart-dropdown {
+    display: block;
+}
+
+/* ✅ Properly Styled Cart Message */
+#cart-message {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #28a745;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    display: none;
+    z-index: 1000;
+    text-align: center;
+    width: auto;
+    white-space: nowrap; /* ✅ Prevents Message from Stretching */
+}
+button {
+  font-size: 12px;
+  padding: 1em 2.7em;
+  font-weight: 500;
+  background: #1f2937;
+  color: white;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.6em;
+  cursor: pointer;
+}
+
+.gradient {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  border-radius: 0.6em;
+  margin-top: -0.25em;
+  background-image: linear-gradient(
+    rgba(0, 0, 0, 0),
+    rgba(0, 0, 0, 0),
+    rgba(0, 0, 0, 0.3)
+  );
+}
+
+.label {
+  position: relative;
+  top: -1px;
+}
+
+.transition {
+  transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  transition-duration: 500ms;
+  background-color: rgba(16, 185, 129, 0.6);
+  border-radius: 9999px;
+  width: 0;
+  height: 0;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+button:hover .transition {
+  width: 10em;
+  height: 10em;
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+
+
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="{% url 'home' %}">Home</a>
+        <div class="cart-container">
+        <a href="{% url 'cart_detail' %}" class="cart-link">
+            Cart 🛒 (<span id="cart-count">{{ request.session.cart_count|default:"0" }}</span>)
+        </a>
+            <ul id="cart-items">
+            </ul>
+        </div>
+        {% if user.is_authenticated %}
+        <a href="{% url 'logout' %}">Logout</a>
+        {% else %}
+            <a href="{% url 'signup' %}">Signup</a>
+            <a href="{% url 'login' %}">Login</a>
+        {% endif %}
+    </nav>
+    <div id="cart-message" style="display: none;"></div>
+
+
+    <div>
+        {% block content %}{% endblock %}
+    </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    // ✅ Function to Update Cart Dropdown
+    function updateCartDropdown() {
+        fetch("/cart_preview/")  // ✅ Fetch Cart Items from Backend
+            .then(response => response.json())
+            .then(data => {
+                let cartItemsList = document.getElementById("cart-items");
+                cartItemsList.innerHTML = ""; // ✅ Clear previous items
+
+                if (data.cart_items.length > 0) {
+                    data.cart_items.forEach(item => {
+                        cartItemsList.innerHTML += `
+                            <li>${item.name} (x${item.quantity}) - $${item.price}</li>
+                        `;
+                    });
+                }
+                // ✅ No else condition (empty dropdown when no items)
+            })
+            .catch(error => console.error("Error fetching cart preview:", error));
+    }
+
+    // ✅ Ensure Cart Updates on Hover
+    let cartLink = document.querySelector(".cart-link");
+    let cartDropdown = document.getElementById("cart-dropdown");
+
+    if (cartLink && cartDropdown) {
+        cartLink.addEventListener("mouseenter", function () {
+            updateCartDropdown();
+            cartDropdown.style.display = "block"; // ✅ Show dropdown when hovered
+        });
+
+        cartLink.addEventListener("mouseleave", function () {
+            setTimeout(() => {
+                cartDropdown.style.display = "none"; // ✅ Hide when mouse leaves
+            }, 3000);
+        });
+    }
+
+    // ✅ Handle "Add to Cart" Click with AJAX
+    document.querySelectorAll(".add-to-cart").forEach(button => {
+        button.addEventListener("click", function (event) {
+            event.preventDefault(); // ✅ Prevent full page reload
+            let fruitId = this.getAttribute("data-id");
+
+            fetch(`/cart/add/${fruitId}/`, {
+                method: "GET",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.cart_count !== undefined) {
+                    let cartCountElement = document.getElementById("cart-count");
+                    if (cartCountElement) {
+                        cartCountElement.innerText = data.cart_count;
+                    }
+                }
+                updateCartDropdown(); // ✅ Ensure cart updates immediately
+            })
+            .catch(error => console.error("Error adding to cart:", error));
+        });
+    });
+
+});
+</script>
+
+
+</body>
+</html>

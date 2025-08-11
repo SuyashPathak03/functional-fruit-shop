@@ -1,0 +1,4 @@
+<h2>🎉 Order Successful!</h2>
+<p>Thank you for your purchase, {{ request.user.username }}!</p>
+<p>Payment Method: {{ order.payment_method|title }}</p>
+<a href="{% url 'home' %}">Continue Shopping</a>
