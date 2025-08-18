@@ -1,108 +1,137 @@
+<!--{% extends "base.html" %}-->
+<!--{% block content %}-->
+<!--<h2>Available Fruits </h2>-->
+<!--<ul>-->
+<!--    {% for fruit in fruits %}-->
+<!--    <li>-->
+<!--        <img src="{{ fruit.image }}" alt="{{ fruit.name }}" width="100">-->
+<!--        <strong>{{ fruit.name }}</strong> - ${{ fruit.price }}-->
+<!--        <br>Stock: {{ fruit.stock }}-->
+<!--        <br>-->
+<!--        {% if fruit.stock > 0 %}-->
+<!--        <a href="{% url 'add_to_cart' fruit.id %}" class="add-to-cart" data-id="{{ fruit.id }}">-->
+<!--            &lt;!&ndash;            <button>Add to Cart</button>&ndash;&gt;-->
+<!--            <button>-->
+<!--                <span class="transition"></span>-->
+<!--                <span class="gradient"></span>-->
+<!--                <span class="label">Add to Cart</span>-->
+<!--            </button>-->
+<!--        </a>-->
+
+<!--        {% else %}-->
+<!--        <strong>Out of Stock</strong>-->
+<!--        {% endif %}-->
+<!--    </li>-->
+<!--    <hr>-->
+<!--    {% endfor %}-->
+<!--</ul>-->
+<!--&lt;!&ndash;<a href="{% url 'cart_detail' %}">&ndash;&gt;-->
+<!--&lt;!&ndash;    <button>View Cart</button>&ndash;&gt;-->
+<!--&lt;!&ndash;</a>&ndash;&gt;-->
+<!--&lt;!&ndash; Message Popup &ndash;&gt;-->
+<!--<div id="cart-message"-->
+<!--     style="display:none; position:fixed; top:20px; right:20px; background:green; color:white; padding:10px; border-radius:5px;">-->
+<!--    Added to cart! 🛒-->
+<!--</div>-->
+
+<!--<script>-->
+<!--    document.addEventListener("DOMContentLoaded", function () {-->
+
+<!--      // ✅ Function to Show Cart Message at the Bottom-->
+<!--      function showCartMessage(message) {-->
+<!--        let msg = document.getElementById("cart-message");-->
+<!--        msg.innerText = message;-->
+<!--        msg.style.display = "block";-->
+<!--        setTimeout(() => msg.style.display = "none", 2000); // ✅ Hide after 2 seconds-->
+<!--      }-->
+<!--      updateCartCount();-->
+
+<!--      // ✅ Handle "Add to Cart" Click with AJAX-->
+<!--      document.querySelectorAll(".add-to-cart").forEach(button => {-->
+<!--        button.addEventListener("click", function (event) {-->
+<!--          event.preventDefault(); // ✅ Prevent full page reload-->
+<!--          let fruitId = this.getAttribute("data-id");-->
+
+<!--          fetch(`/cart/add/${fruitId}/`, {-->
+<!--            method: "GET",-->
+<!--            headers: {-->
+<!--              "X-Requested-With": "XMLHttpRequest"-->
+<!--            }-->
+<!--          })-->
+<!--          .then(response => response.json())-->
+<!--          .then(data => {-->
+<!--            if (data.message) {-->
+<!--              showCartMessage(data.message);-->
+<!--            }-->
+
+<!--            // ✅ Update Cart Counter-->
+<!--            let cartCountElement = document.getElementById("cart-count");-->
+<!--            if (cartCountElement) {-->
+<!--                cartCountElement.innerText = data.cart_count;-->
+<!--            }-->
+<!--          })-->
+<!--          .catch(error => console.error("Error adding to cart:", error));-->
+<!--        });-->
+<!--      });-->
+
+<!--    });-->
+<!--</script>-->
+
+
+<!--{% endblock %}-->
+
+
+
+
+
+
+
+
 {% extends "base.html" %}
 {% block content %}
 <h2>Available Fruits </h2>
-<ul>
+
+<div class="fruits-container">
     {% for fruit in fruits %}
-    <li>
-        <img src="{{ fruit.image }}" alt="{{ fruit.name }}" width="100">
+    <div class="fruit-card">
+        <img src="{{ fruit.image }}" alt="{{ fruit.name }}">
         <strong>{{ fruit.name }}</strong> - ${{ fruit.price }}
         <br>Stock: {{ fruit.stock }}
         <br>
         {% if fruit.stock > 0 %}
         <a href="{% url 'add_to_cart' fruit.id %}" class="add-to-cart" data-id="{{ fruit.id }}">
-            <!--            <button>Add to Cart</button>-->
             <button>
                 <span class="transition"></span>
                 <span class="gradient"></span>
                 <span class="label">Add to Cart</span>
             </button>
         </a>
-
         {% else %}
         <strong>Out of Stock</strong>
         {% endif %}
-    </li>
-    <hr>
+    </div>
     {% endfor %}
-</ul>
-<!--<a href="{% url 'cart_detail' %}">-->
-<!--    <button>View Cart</button>-->
-<!--</a>-->
+</div>
+
 <!-- Message Popup -->
 <div id="cart-message"
      style="display:none; position:fixed; top:20px; right:20px; background:green; color:white; padding:10px; border-radius:5px;">
     Added to cart! 🛒
 </div>
 
-<!-- JavaScript for AJAX -->
-<!--<script>-->
-<!--  document.addEventListener("DOMContentLoaded", function () {-->
-<!--    function updateCartDropdown() {-->
-<!--      fetch("/cart_preview/")-->
-<!--        .then(response => response.json())-->
-<!--        .then(data => {-->
-<!--          let cartDropdown = document.getElementById("cart-dropdown-content");-->
-<!--          cartDropdown.innerHTML = ""; // Clear previous items-->
-
-<!--          if (data.cart_items.length > 0) {-->
-<!--            data.cart_items.forEach(item => {-->
-<!--              cartDropdown.innerHTML += `-->
-<!--                <li>${item.name} (x${item.quantity}) - $${item.price}</li>-->
-<!--              `;-->
-<!--            });-->
-<!--          } else {-->
-<!--            cartDropdown.innerHTML = "<li>Cart is empty</li>";  // ✅ Fix for "cart empty" issue-->
-<!--          }-->
-<!--        });-->
-<!--    }-->
-
-<!--    document.querySelectorAll(".add-to-cart").forEach(button => {-->
-<!--      button.addEventListener("click", function () {-->
-<!--        let fruitId = this.getAttribute("data-id");-->
-
-<!--        fetch(`/cart/add/${fruitId}/`, {-->
-<!--          method: "GET",-->
-<!--          headers: {-->
-<!--            "X-Requested-With": "XMLHttpRequest"-->
-<!--          }-->
-<!--        })-->
-<!--        .then(response => response.json())-->
-<!--        .then(data => {-->
-<!--          if (data.message) {-->
-<!--            let msg = document.getElementById("cart-message");-->
-<!--            msg.style.display = "block";-->
-<!--            msg.innerText = data.message;  // ✅ Ensure message is updated-->
-<!--            setTimeout(() => msg.style.display = "none", 2000);-->
-<!--          }-->
-<!--          if (data.cart_count !== undefined) {-->
-<!--            document.getElementById("cart-count").innerText = data.cart_count;-->
-<!--          }-->
-
-<!--          updateCartDropdown(); // ✅ Refresh cart dropdown after adding-->
-<!--        });-->
-<!--      });-->
-<!--    });-->
-
-<!--    // ✅ Refresh cart when user hovers over "Cart 🛒"-->
-<!--    document.getElementById("cart-container").addEventListener("mouseenter", updateCartDropdown);-->
-<!--  });-->
-<!--</script>-->
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-
-      // ✅ Function to Show Cart Message at the Bottom
       function showCartMessage(message) {
         let msg = document.getElementById("cart-message");
         msg.innerText = message;
         msg.style.display = "block";
-        setTimeout(() => msg.style.display = "none", 2000); // ✅ Hide after 2 seconds
+        setTimeout(() => msg.style.display = "none", 2000);
       }
       updateCartCount();
 
-      // ✅ Handle "Add to Cart" Click with AJAX
       document.querySelectorAll(".add-to-cart").forEach(button => {
         button.addEventListener("click", function (event) {
-          event.preventDefault(); // ✅ Prevent full page reload
+          event.preventDefault();
           let fruitId = this.getAttribute("data-id");
 
           fetch(`/cart/add/${fruitId}/`, {
@@ -116,8 +145,6 @@
             if (data.message) {
               showCartMessage(data.message);
             }
-
-            // ✅ Update Cart Counter
             let cartCountElement = document.getElementById("cart-count");
             if (cartCountElement) {
                 cartCountElement.innerText = data.cart_count;
@@ -126,9 +153,7 @@
           .catch(error => console.error("Error adding to cart:", error));
         });
       });
-
     });
 </script>
-
 
 {% endblock %}
