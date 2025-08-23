@@ -20,7 +20,7 @@ def get_stock_for_fruit(fruit_name):
     conn = MySQLdb.connect(
         host="SuyashPathak.mysql.pythonanywhere-services.com",
         user="SuyashPathak",
-        passwd="Suyash_12",
+        passwd="MyStrongPass123!",
         db="SuyashPathak$default"
     )
     cursor = conn.cursor()
