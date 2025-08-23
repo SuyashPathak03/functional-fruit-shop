@@ -218,6 +218,7 @@
 
 # ----------------------------------------------3--------------------------------------------------------------
 from .models import Fruit
+from django.contrib import messages
 
 
 class Cart:
@@ -254,14 +255,17 @@ class Cart:
 
         self.save()
 
-    def update(self, fruit, quantity):
+
+
+    def update(self, fruit, quantity, request=None):
         """Update item quantity in the cart"""
         fruit_id = str(fruit.id)
         available_stock = fruit.stock  # stock from ORM
 
         if fruit_id in self.cart:
             if quantity > available_stock:
-                print(f"Only {available_stock} {fruit.name} left in stock!")
+                if request:
+                    messages.error(request, f"Only {available_stock} {fruit.name} left in stock!")
                 return
             elif quantity > 0:
                 self.cart[fruit_id]["quantity"] = quantity
@@ -271,7 +275,8 @@ class Cart:
             self.session["cart"] = self.cart
             self.session.modified = True
         else:
-            print("Error: Fruit not found in cart")
+            if request:
+                messages.error(request, "Fruit not found in cart")
 
     def remove(self, fruit):
         """Remove fruit from cart"""
