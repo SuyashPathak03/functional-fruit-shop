@@ -143,8 +143,10 @@ def update_cart(request, fruit_id):
         quantity = int(request.POST.get("quantity", 1))
 
         print(f"Updating fruit {fruit.name} (ID: {fruit_id}) to quantity {quantity}")
+        cart = Cart(request)
+        fruit = Fruit.objects.get(id=fruit_id)
+        cart.update(fruit, quantity, request=request)
 
-        cart.update(fruit, quantity)
 
     return redirect("cart_detail")
 
