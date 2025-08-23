@@ -5,7 +5,7 @@ def get_stock_data():
     conn = MySQLdb.connect(
         host="SuyashPathak.mysql.pythonanywhere-services.com",
         user="SuyashPathak",
-        passwd="Suyash_12",   # use your actual password
+        passwd="MyStrongPass123!",   # use your actual password
         db="SuyashPathak$default"
     )
     cursor = conn.cursor()

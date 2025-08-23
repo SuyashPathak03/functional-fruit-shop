@@ -94,9 +94,9 @@ WSGI_APPLICATION = 'fruit_shop.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'SuyashPathak$default',   # default DB name
-        'USER': 'SuyashPathak',           # PythonAnywhere DB username
-        'PASSWORD': 'Suyash_12',
+        'NAME': 'SuyashPathak$default',
+        'USER': 'SuyashPathak',
+        'PASSWORD': 'MyStrongPass123!',
         'HOST': 'SuyashPathak.mysql.pythonanywhere-services.com',
         'PORT': '3306',
     }
