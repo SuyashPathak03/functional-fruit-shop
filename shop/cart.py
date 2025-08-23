@@ -1,4 +1,5 @@
 from .models import Fruit
+from .db_utils import get_stock_for_fruit
 
 
 class Cart:
@@ -41,18 +42,39 @@ class Cart:
         """Get all cart items"""
         return self.cart.values()
 
+    # def update(self, fruit, quantity):
+    #     """ Update item quantity in the cart """
+    #     fruit_id = str(fruit.id)
+    #     if fruit_id in self.cart:
+    #         if quantity > 0:
+    #             self.cart[fruit_id]["quantity"] = quantity
+    #         else:
+    #             del self.cart[fruit_id]  #  Remove item if quantity is 0
+    #         self.session["cart"] = self.cart
+    #         self.session.modified = True
+    #     else:
+    #         print("Error: Fruit not found in cart")  # ✅ Debugging message
+
     def update(self, fruit, quantity):
-        """ ✅ Update item quantity in the cart """
+        """Update item quantity in the cart"""
         fruit_id = str(fruit.id)
+
+        #  get stock from online DB
+        available_stock = get_stock_for_fruit(fruit.name)
+
         if fruit_id in self.cart:
-            if quantity > 0:
+            if quantity > available_stock:
+                print(f"Only {available_stock} {fruit.name} left in stock!")
+                return
+            elif quantity > 0:
                 self.cart[fruit_id]["quantity"] = quantity
             else:
-                del self.cart[fruit_id]  # ✅ Remove item if quantity is 0
+                del self.cart[fruit_id]  # remove item if quantity is 0
+
             self.session["cart"] = self.cart
             self.session.modified = True
         else:
-            print("Error: Fruit not found in cart")  # ✅ Debugging message
+            print("Error: Fruit not found in cart")
 
     @property
     def items(self):

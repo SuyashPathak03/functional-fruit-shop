@@ -79,14 +79,26 @@ WSGI_APPLICATION = 'fruit_shop.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'fruit_shop1',  # Your database name
+#         'USER': 'root',  # Your MySQL username
+#         'PASSWORD': 'admin',  # Your MySQL password
+#         'HOST': 'localhost',  # Change if using a different host
+#         'PORT': '3306',  # MySQL default port
+#     }
+# }
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'fruit_shop1',  # Your database name
-        'USER': 'root',  # Your MySQL username
-        'PASSWORD': 'admin',  # Your MySQL password
-        'HOST': 'localhost',  # Change if using a different host
-        'PORT': '3306',  # MySQL default port
+        'NAME': 'SuyashPathak$default',   # default DB name
+        'USER': 'SuyashPathak',           # PythonAnywhere DB username
+        'PASSWORD': 'admin',
+        'HOST': 'SuyashPathak.mysql.pythonanywhere-services.com',
+        'PORT': '3306',
     }
 }
 
