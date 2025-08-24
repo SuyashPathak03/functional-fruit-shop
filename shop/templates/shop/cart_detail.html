@@ -1,82 +1,230 @@
+<!--{% extends "base.html" %}-->
+<!--{% block content %}-->
+<!--<h2>🛒 Your Shopping Cart</h2>-->
+
+<!--{% if cart.items|length > 0 %}-->
+<!--<table border="1">-->
+<!--    <tr>-->
+<!--        <th>Fruit</th>-->
+<!--        <th>Price</th>-->
+<!--        <th>Quantity</th>-->
+<!--        <th>Total</th>-->
+<!--        <th>Action</th>-->
+<!--    </tr>-->
+<!--    {% for item in cart.items %}-->
+<!--    <tr>-->
+<!--        <td>{{ item.name }}</td>-->
+<!--        <td>${{ item.price }}</td>-->
+<!--        <td>-->
+<!--            <form action="{% url 'update_cart' item.id %}" method="post">-->
+<!--                {% csrf_token %}-->
+<!--                <input type="number" name="quantity" value="{{ item.quantity }}" min="1">-->
+<!--                &lt;!&ndash;                <button type="submit">Update</button>&ndash;&gt;-->
+<!--                <button>-->
+<!--                    <span class="transition"></span>-->
+<!--                    <span class="gradient"></span>-->
+<!--                    <span class="label">Update</span>-->
+
+<!--                </button>-->
+<!--            </form>-->
+<!--        </td>-->
+<!--        <td>${{ item.total }}</td>-->
+<!--        <td><a href="{% url 'remove_from_cart' item.id %}">-->
+<!--            <button>-->
+<!--                <span class="transition"></span>-->
+<!--                <span class="gradient"></span>-->
+<!--                <span class="label">Remove</span>-->
+<!--            </button>-->
+<!--        </a></td>-->
+<!--    </tr>-->
+<!--    {% endfor %}-->
+<!--</table>-->
+
+<!--<h3>Total Price: ${{ cart.total }}</h3>-->
+
+
+<!--&lt;!&ndash;  Checkout Button with Login/Signup Prompt &ndash;&gt;-->
+<!--{% if user.is_authenticated %}-->
+<!--<a href="{% url 'checkout' %}">-->
+<!--    <button>Proceed to Checkout</button>-->
+<!--</a>-->
+<!--{% else %}-->
+<!--<p>-->
+<!--    <a href="{% url 'login' %}?next={% url 'checkout' %}">-->
+<!--        <button>-->
+<!--            <span class="transition"></span>-->
+<!--            <span class="gradient"></span>-->
+<!--            <span class="label">Log in</span>-->
+<!--        </button>-->
+<!--    </a> or-->
+<!--    <a href="{% url 'signup' %}?next={% url 'checkout' %}">-->
+<!--        <button>-->
+<!--            <span class="transition"></span>-->
+<!--            <span class="gradient"></span>-->
+<!--            <span class="label">Sign in</span>-->
+<!--        </button>-->
+<!--    </a> to checkout.-->
+<!--</p>-->
+<!--{% endif %}-->
+
+
+<!--{% else %}-->
+<!--<p>Your cart is empty.</p>-->
+<!--{% endif %}-->
+
+<!--<a href="{% url 'home' %}">-->
+<!--     <button>-->
+<!--                <span class="transition"></span>-->
+<!--                <span class="gradient"></span>-->
+<!--                <span class="label">Continue Shopping</span>-->
+<!--            </button>-->
+<!--</a>-->
+<!--{% endblock %}-->
+
+
+
+
+
+
+
 {% extends "base.html" %}
 {% block content %}
-<h2>🛒 Your Shopping Cart</h2>
 
-{% if cart.items|length > 0 %}
-<table border="1">
-    <tr>
-        <th>Fruit</th>
-        <th>Price</th>
-        <th>Quantity</th>
-        <th>Total</th>
-        <th>Action</th>
-    </tr>
-    {% for item in cart.items %}
-    <tr>
-        <td>{{ item.name }}</td>
-        <td>${{ item.price }}</td>
-        <td>
-            <form action="{% url 'update_cart' item.id %}" method="post">
-                {% csrf_token %}
-                <input type="number" name="quantity" value="{{ item.quantity }}" min="1">
-                <!--                <button type="submit">Update</button>-->
-                <button>
-                    <span class="transition"></span>
-                    <span class="gradient"></span>
-                    <span class="label">Update</span>
+<style>
+    .cart-container {
+        max-width: 900px;
+        margin: 30px auto;
+        padding: 20px;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
 
-                </button>
-            </form>
-        </td>
-        <td>${{ item.total }}</td>
-        <td><a href="{% url 'remove_from_cart' item.id %}">
-            <button>
-                <span class="transition"></span>
-                <span class="gradient"></span>
-                <span class="label">Remove</span>
-            </button>
-        </a></td>
-    </tr>
-    {% endfor %}
-</table>
+    .cart-container h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 28px;
+        color: #333;
+    }
 
-<h3>Total Price: ${{ cart.total }}</h3>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: center;
+    }
+
+    th {
+        background: #f5f5f5;
+        font-weight: bold;
+    }
+
+    tr:nth-child(even) {
+        background: #fafafa;
+    }
+
+    input[type="number"] {
+        width: 60px;
+        padding: 5px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+    }
+
+    /* Modern button */
+    button {
+        background: linear-gradient(135deg, #ff7e5f, #feb47b);
+        border: none;
+        color: white;
+        padding: 8px 14px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: 0.3s ease;
+    }
+
+    button:hover {
+        background: linear-gradient(135deg, #feb47b, #ff7e5f);
+        transform: scale(1.05);
+    }
+
+    .total-price {
+        font-size: 20px;
+        text-align: right;
+        margin: 15px 0;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .cart-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+    }
+
+    .cart-actions a {
+        text-decoration: none;
+    }
+</style>
 
 
-<!--  Checkout Button with Login/Signup Prompt -->
-{% if user.is_authenticated %}
-<a href="{% url 'checkout' %}">
-    <button>Proceed to Checkout</button>
-</a>
-{% else %}
-<p>
-    <a href="{% url 'login' %}?next={% url 'checkout' %}">
-        <button>
-            <span class="transition"></span>
-            <span class="gradient"></span>
-            <span class="label">Log in</span>
-        </button>
-    </a> or
-    <a href="{% url 'signup' %}?next={% url 'checkout' %}">
-        <button>
-            <span class="transition"></span>
-            <span class="gradient"></span>
-            <span class="label">Sign in</span>
-        </button>
-    </a> to checkout.
-</p>
-{% endif %}
+<div class="cart-container">
+    <h2>🛒 Your Shopping Cart</h2>
 
+    {% if cart.items|length > 0 %}
+    <table>
+        <tr>
+            <th>Fruit</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Total</th>
+            <th>Action</th>
+        </tr>
+        {% for item in cart.items %}
+        <tr>
+            <td>{{ item.name }}</td>
+            <td>${{ item.price }}</td>
+            <td>
+                <form action="{% url 'update_cart' item.id %}" method="post">
+                    {% csrf_token %}
+                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1">
+                    <button type="submit">Update</button>
+                </form>
+            </td>
+            <td>${{ item.total }}</td>
+            <td>
+                <a href="{% url 'remove_from_cart' item.id %}">
+                    <button>Remove</button>
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
 
-{% else %}
-<p>Your cart is empty.</p>
-{% endif %}
+    <p class="total-price">Total Price: ${{ cart.total }}</p>
 
-<a href="{% url 'home' %}">
-     <button>
-                <span class="transition"></span>
-                <span class="gradient"></span>
-                <span class="label">Continue Shopping</span>
-            </button>
-</a>
+    <!-- Checkout -->
+    {% if user.is_authenticated %}
+        <div class="cart-actions">
+            <a href="{% url 'home' %}"><button>⬅ Continue Shopping</button></a>
+            <a href="{% url 'checkout' %}"><button>✅ Proceed to Checkout</button></a>
+        </div>
+    {% else %}
+        <p style="text-align:center;">
+            <a href="{% url 'login' %}?next={% url 'checkout' %}"><button>Log in</button></a> or
+            <a href="{% url 'signup' %}?next={% url 'checkout' %}"><button>Sign Up</button></a> to checkout.
+        </p>
+    {% endif %}
+
+    {% else %}
+    <p style="text-align:center;">Your cart is empty.</p>
+    <p style="text-align:center;">
+        <a href="{% url 'home' %}"><button>⬅ Continue Shopping</button></a>
+    </p>
+    {% endif %}
+</div>
+
 {% endblock %}
