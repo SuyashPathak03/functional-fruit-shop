@@ -78,7 +78,7 @@
         {% for item in cart.items %}
         <tr>
             <td>{{ item.name }}</td>
-            <td>${{ item.price }}</td>
+            <td>₹{{ item.price }}</td>
             <td>
                 <form action="{% url 'update_cart' item.id %}" method="post">
                     {% csrf_token %}
@@ -101,7 +101,7 @@
     </table>
 
     <div class="cart-total">
-        Total Price: ${{ cart.total }}
+        Total Price: ₹{{ cart.total }}
     </div>
 {% else %}
     <p style="text-align:center; font-size:18px; margin-top:20px;">Your cart is empty 🛍️</p>

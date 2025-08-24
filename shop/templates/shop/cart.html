@@ -15,7 +15,7 @@
     <tr>
         <td><img src="{{ item.image }}" width="50"></td>
         <td>{{ item.name }}</td>
-        <td>${{ item.price }}</td>
+        <td>₹{{ item.price }}</td>
         <td>{{ item.quantity }}</td>
         <td><a href="{% url 'remove_from_cart' item.name %}">Remove</a></td>
     </tr>

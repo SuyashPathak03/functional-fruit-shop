@@ -7,7 +7,7 @@
     {% for fruit in fruits %}
     <div class="fruit-card">
         <img src="{{ fruit.image }}" alt="{{ fruit.name }}">
-        <strong>{{ fruit.name }}</strong> - ${{ fruit.price }}
+        <strong>{{ fruit.name }}</strong> - ₹{{ fruit.price }}
         <br>Stock: {{ fruit.stock }}
         <br>
         {% if fruit.stock > 0 %}
