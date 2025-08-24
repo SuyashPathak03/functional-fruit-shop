@@ -78,7 +78,11 @@
     </tr>
     {% for item in cart.items %}
     <tr>
-        <td><img src="{{ item.image }}" alt="{{ item.name }}" width="60" height="60"></td>
+         <td>
+            <img src="{{ item.image }}" alt="{{ item.name }}" width="60" height="60">
+            <br>
+            {{ item.name }}
+        </td>
         <td>{{ item.name }}</td>
         <td>₹{{ item.price }}</td>
         <td>
