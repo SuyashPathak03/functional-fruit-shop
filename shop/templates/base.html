@@ -177,19 +177,20 @@ button:active {
         <style>
     nav {
         display: flex;
-        justify-content: space-between; /* left + right alignment */
+        justify-content: flex-start; /* everything aligned left */
         align-items: center;
         padding: 10px;
+        gap: 15px; /* space between links */
     }
 
-    nav .left-links a {
-        color: black;
+    nav a {
+        color: black;        /* all links black */
         text-decoration: none;
-        margin-right: 15px;
+        font-weight: bold;
     }
 
-    nav .left-links a:hover {
-        color: gray;
+    nav a:hover {
+        color: gray;         /* hover effect */
     }
 
     #cart-count {
@@ -197,15 +198,24 @@ button:active {
         font-weight: bold;
     }
 </style>
-    <nav>
-        <a href="{% url 'home' %}">Home</a>
-        <div class="cart-container">
-        <a href="{% url 'cart_detail' %}" class="cart-link">
-            Cart 🛒 (<span id="cart-count">{{ request.session.cart_count|default:"0" }}</span>)
-        </a>
-            <ul id="cart-items">
-            </ul>
-        </div>
+
+<nav>
+    <a href="{% url 'home' %}">Home</a>
+    <a href="{% url 'cart_detail' %}">Cart 🛒 (<span id="cart-count">{{ request.session.cart_count|default:"0" }}</span>)</a>
+
+    {% if user.is_authenticated %}
+        <a href="{% url 'logout' %}">Logout</a>
+    {% else %}
+        <a href="{% url 'signup' %}">Signup</a>
+        <a href="{% url 'login' %}">Login</a>
+    {% endif %}
+</nav>
+
+<div>
+    {% block content %}
+    {% endblock %}
+</div>
+
 
 
         {% if user.is_authenticated %}
@@ -219,7 +229,6 @@ button:active {
 
 
     <div>
-        {% block content %}{% endblock %}
     </div>
 
 <script>
