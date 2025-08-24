@@ -8,6 +8,10 @@ class Fruit(models.Model):
     stock = models.IntegerField(default=0)
     objects = models.Manager()
 
+    def __str__(self):
+        return f"{self.name} - ₹{self.price}"
+
+
 class Order(models.Model):
     PAYMENT_METHODS = [
         ("cod", "Cash on Delivery"),
