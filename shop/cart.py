@@ -305,7 +305,8 @@ class Cart:
                 "id": fruit_id,
                 "name": item["name"],
                 "price": item["price"],
-                "quantity": item["quantity"]
+                "quantity": item["quantity"],
+                'image': fruit.image
             })
 
         return cart_items
