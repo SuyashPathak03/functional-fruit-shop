@@ -211,7 +211,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (data.cart_items.length > 0) {
                     data.cart_items.forEach(item => {
                         cartItemsList.innerHTML += `
-                            <li>${item.name} (x${item.quantity}) - $${item.price}</li>
+                            <li>${item.name} (x${item.quantity}) - ₹${item.price}</li>
                         `;
                     });
                 }
