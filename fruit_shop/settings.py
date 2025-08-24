@@ -25,7 +25,8 @@ SECRET_KEY = 'django-insecure-dzs9@@rfp&qj5c3)-b)6qp@3vp&ls5mfjf$m48j3$jjw)%n%r@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['suyashpathak.pythonanywhere.com']
+ALLOWED_HOSTS = ['suyashpathak.pythonanywhere.com',
+                 '127.0.0.1']
 
 
 # Application definition
@@ -91,16 +92,38 @@ WSGI_APPLICATION = 'fruit_shop.wsgi.application'
 # }
 
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'SuyashPathak$default',
-        'USER': 'SuyashPathak',
-        'PASSWORD': 'MyStrongPass123!',
-        'HOST': 'SuyashPathak.mysql.pythonanywhere-services.com',
-        'PORT': '3306',
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'SuyashPathak$default',
+#         'USER': 'SuyashPathak',
+#         'PASSWORD': 'MyStrongPass123!',
+#         'HOST': 'SuyashPathak.mysql.pythonanywhere-services.com',
+#         'PORT': '3306',
+#     }
+# }
+import socket
+
+# Check if we are running on PythonAnywhere (your MySQL server hostname always ends with .pythonanywhere-services.com)
+if "pythonanywhere-services.com" in socket.gethostname() or "pythonanywhere" in socket.getfqdn():
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'SuyashPathak$fruitshop',  # your MySQL DB name
+            'USER': 'SuyashPathak',            # your PythonAnywhere username
+            'PASSWORD': 'MyStrongPass123!', # replace with your real MySQL password
+            'HOST': 'SuyashPathak.mysql.pythonanywhere-services.com',
+            'PORT': '3306',
+        }
     }
-}
+else:
+    # Local development (SQLite)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
