@@ -250,7 +250,7 @@ class Cart:
                 "name": fruit.name,
                 "price": str(fruit.price),
                 "quantity": quantity,
-                "image": fruit.image,
+                "image": fruit.image.url if fruit.image else ""
             }
 
         self.save()

@@ -125,7 +125,8 @@ def cart_detail(request):
                 "name": item["name"],
                 "price": price,
                 "quantity": quantity,
-                "total": price * quantity
+                "total": price * quantity,
+                "image": item.get("image", "")
             })
         except (ValueError, TypeError) as e:
             print(f"Error processing cart item {fruit_id}: {e}")
