@@ -131,7 +131,7 @@ if "PYTHONANYWHERE_DOMAIN" in os.environ or "pythonanywhere" in socket.getfqdn()
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'SuyashPathak$fruitshop',
+            'NAME': 'SuyashPathak$default',
             'USER': 'SuyashPathak',
             'PASSWORD': 'MyStrongPass123!',
             'HOST': 'SuyashPathak.mysql.pythonanywhere-services.com',
