@@ -115,6 +115,7 @@ def cart_detail(request):
     # Convert cart data into list for rendering
     cart_items = []
     total_price = 0
+
     for fruit_id, item in cart.items():
         try:
             price = float(item["price"])
@@ -126,7 +127,7 @@ def cart_detail(request):
                 "price": price,
                 "quantity": quantity,
                 "total": price * quantity,
-                "image": item.get("image", "")
+                "image": Fruit.image,
             })
         except (ValueError, TypeError) as e:
             print(f"Error processing cart item {fruit_id}: {e}")
