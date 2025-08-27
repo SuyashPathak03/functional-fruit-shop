@@ -7,7 +7,6 @@ from .cart import Cart
 from django.contrib.auth.decorators import login_required
 
 
-
 # Home
 def home_view(request):
     fruits = Fruit.objects.all()  # Fetch all fruits
