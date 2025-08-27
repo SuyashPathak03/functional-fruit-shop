@@ -136,6 +136,7 @@ document.querySelectorAll(".update-cart-form").forEach(form => {
         })
         .then(response => response.json())
         .then(data => {
+            // Show popup
             if (data.message) {
                 Swal.fire({
                     icon: data.message.includes("Cannot") ? "warning" : "success",
@@ -145,12 +146,20 @@ document.querySelectorAll(".update-cart-form").forEach(form => {
                 });
             }
 
+            // If stock exceeded → stop, keep old values
+            if (data.message && data.message.includes("Cannot")) {
+                return;
+            }
+
+            // Remove if quantity is 0
             if (data.item_quantity > 0) {
                 document.querySelector(`#item-price-${fruitId}`).innerText = "₹" + data.item_total;
+                form.querySelector("input[name='quantity']").value = data.item_quantity;
             } else {
                 document.querySelector(`#cart-row-${fruitId}`).remove();
             }
 
+            // Update totals
             document.querySelector("#cart-total").innerText = "₹" + data.cart_total;
             document.querySelector("#cart-count").innerText = data.cart_count;
         })

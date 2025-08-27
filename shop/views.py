@@ -191,29 +191,43 @@ def update_cart(request, fruit_id):
     except ValueError:
         return JsonResponse({"error": "Invalid quantity."}, status=400)
 
-    message = ""
+    current_quantity = cart.cart.get(str(fruit_id), {}).get("quantity", 0)
+
+    # If quantity is 0 → remove the item
     if quantity <= 0:
         cart.remove(fruit)
-        message = "Item removed from cart."
-    else:
-        if fruit.stock and quantity > fruit.stock:
-            quantity = fruit.stock
-            message = f"Cannot add more than {fruit.stock} items (max stock reached)."
+        return JsonResponse({
+            "message": "Item removed from cart.",
+            "cart_count": sum(item["quantity"] for item in cart.cart.values()),
+            "cart_total": sum(item["quantity"] * item["price"] for item in cart.cart.values()),
+            "item_quantity": 0,
+            "item_total": 0
+        })
 
-        cart.update(fruit, quantity)
-        if not message:
-            message = "Cart updated successfully."
+    # If quantity exceeds stock → don't change cart, keep old values
+    if fruit.stock and quantity > fruit.stock:
+        return JsonResponse({
+            "message": f"Cannot add more than {fruit.stock} items (max stock reached).",
+            "cart_count": sum(item["quantity"] for item in cart.cart.values()),
+            "cart_total": sum(item["quantity"] * item["price"] for item in cart.cart.values()),
+            "item_quantity": current_quantity,  # keep old quantity
+            "item_total": current_quantity * fruit.price  # keep old total
+        })
+
+    # Otherwise update with valid quantity
+    cart.update(fruit, quantity)
 
     cart_count = sum(item["quantity"] for item in cart.cart.values())
     cart_total = sum(item["quantity"] * item["price"] for item in cart.cart.values())
 
     return JsonResponse({
-        "message": message,
+        "message": "Cart updated successfully.",
         "cart_count": cart_count,
         "cart_total": cart_total,
-        "item_total": cart.cart.get(str(fruit_id), {}).get("quantity", 0) * fruit.price,
-        "item_quantity": cart.cart.get(str(fruit_id), {}).get("quantity", 0)
+        "item_quantity": quantity,
+        "item_total": quantity * fruit.price
     })
+
 
 
 
