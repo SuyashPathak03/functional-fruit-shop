@@ -77,24 +77,23 @@
         <th>Action</th>
     </tr>
     {% for item in cart.items %}
-    <tr>
-         <td>
-            <img src="{{ item.image }}" alt="{{ item.name }}" width="100">
-            <br>
+    <tr id="cart-row-{{ item.id }}">
+        <td>
+            <img src="{{ item.image }}" alt="{{ item.name }}" width="100"><br>
             {{ item.name }}
         </td>
         <td>{{ item.name }}</td>
         <td>₹{{ item.price }}</td>
         <td>
-            <form action="{% url 'update_cart' item.id %}" method="post">
+            <form class="update-cart-form" data-fruit-id="{{ item.id }}">
                 {% csrf_token %}
-                <input type="number" name="quantity" value="{{ item.quantity }}" min="1">
+                <input type="number" name="quantity" value="{{ item.quantity }}" min="0">
                 <div class="cart-actions">
-                    <button>Update</button>
+                    <button type="submit">Update</button>
                 </div>
             </form>
         </td>
-        <td>₹{{ item.total }}</td>
+        <td id="item-price-{{ item.id }}">₹{{ item.total }}</td>
         <td>
             <div class="cart-actions">
                 <a href="{% url 'remove_from_cart' item.id %}">
@@ -107,12 +106,57 @@
 </table>
 
 <div class="cart-total">
-    Total Price: ₹{{ cart.total }}
+    Total Price: <span id="cart-total">₹{{ cart.total }}</span>
 </div>
 {% else %}
 <p style="text-align:center; font-size:18px; margin-top:20px;">Your cart is empty 🛍️</p>
 {% endif %}
-
 </div>
+
+<!-- SweetAlert2 for Popups -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+document.querySelectorAll(".update-cart-form").forEach(form => {
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const fruitId = this.dataset.fruitId;
+        const quantity = this.querySelector("input[name='quantity']").value;
+
+        fetch(`/cart/update/${fruitId}/`, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": csrftoken,
+                "X-Requested-With": "XMLHttpRequest",
+            },
+            body: new URLSearchParams({quantity: quantity})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                Swal.fire({
+                    icon: data.message.includes("Cannot") ? "warning" : "success",
+                    title: data.message,
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            }
+
+            if (data.item_quantity > 0) {
+                document.querySelector(`#item-price-${fruitId}`).innerText = "₹" + data.item_total;
+            } else {
+                document.querySelector(`#cart-row-${fruitId}`).remove();
+            }
+
+            document.querySelector("#cart-total").innerText = "₹" + data.cart_total;
+            document.querySelector("#cart-count").innerText = data.cart_count;
+        })
+        .catch(err => console.error("Cart update error:", err));
+    });
+});
+</script>
 
 {% endblock %}

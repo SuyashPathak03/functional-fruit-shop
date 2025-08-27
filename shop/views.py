@@ -152,7 +152,35 @@ def cart_detail(request):
 #     return redirect("cart_detail")
 
 
+# from django.http import JsonResponse
+#
+# def update_cart(request, fruit_id):
+#     cart = Cart(request)
+#     fruit = get_object_or_404(Fruit, id=fruit_id)
+#
+#     try:
+#         quantity = int(request.POST.get("quantity", 1))
+#     except ValueError:
+#         return JsonResponse({"error": "Invalid quantity."}, status=400)
+#
+#     message = ""
+#     if fruit.stock and quantity > fruit.stock:
+#         quantity = fruit.stock
+#         message = f"Cannot add more than {fruit.stock} items (max stock reached)."
+#
+#     cart.update(fruit, quantity)
+#     cart_count = sum(item["quantity"] for item in cart.cart.values())
+#     return JsonResponse({
+#         "message": message or "Cart updated successfully.",
+#         "cart_count": cart_count
+#     })
+
+
+
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from .models import Fruit
+from .cart import Cart
 
 def update_cart(request, fruit_id):
     cart = Cart(request)
@@ -164,15 +192,27 @@ def update_cart(request, fruit_id):
         return JsonResponse({"error": "Invalid quantity."}, status=400)
 
     message = ""
-    if fruit.stock and quantity > fruit.stock:
-        quantity = fruit.stock
-        message = f"Cannot add more than {fruit.stock} items (max stock reached)."
+    if quantity <= 0:
+        cart.remove(fruit)
+        message = "Item removed from cart."
+    else:
+        if fruit.stock and quantity > fruit.stock:
+            quantity = fruit.stock
+            message = f"Cannot add more than {fruit.stock} items (max stock reached)."
 
-    cart.update(fruit, quantity)
+        cart.update(fruit, quantity)
+        if not message:
+            message = "Cart updated successfully."
+
     cart_count = sum(item["quantity"] for item in cart.cart.values())
+    cart_total = sum(item["quantity"] * item["price"] for item in cart.cart.values())
+
     return JsonResponse({
-        "message": message or "Cart updated successfully.",
-        "cart_count": cart_count
+        "message": message,
+        "cart_count": cart_count,
+        "cart_total": cart_total,
+        "item_total": cart.cart.get(str(fruit_id), {}).get("quantity", 0) * fruit.price,
+        "item_quantity": cart.cart.get(str(fruit_id), {}).get("quantity", 0)
     })
 
 
