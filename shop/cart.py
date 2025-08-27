@@ -217,112 +217,203 @@
 
 
 # ----------------------------------------------3--------------------------------------------------------------
-from .models import Fruit
-from django.contrib import messages
+# from .models import Fruit
+# from django.contrib import messages
+#
+#
+# class Cart:
+#     def __init__(self, request):
+#         """Initialize the cart using the session"""
+#         self.session = request.session
+#         cart = self.session.get("cart")
+#         if not cart:
+#             cart = self.session["cart"] = {}  # Create an empty cart
+#         self.cart = cart
+#
+#     def add(self, fruit, quantity=1):
+#         """Add fruit to cart (or update quantity)"""
+#         fruit_id = str(fruit.id)
+#         available_stock = fruit.stock  # stock from ORM
+#
+#         if quantity > available_stock:
+#             print(f"Cannot add {quantity} {fruit.name}. Only {available_stock} in stock!")
+#             return
+#
+#         if fruit_id in self.cart:
+#             new_quantity = self.cart[fruit_id]["quantity"] + quantity
+#             if new_quantity > available_stock:
+#                 print(f"Cannot add {quantity} {fruit.name}. Only {available_stock} in stock!")
+#                 return
+#             self.cart[fruit_id]["quantity"] = new_quantity
+#         else:
+#             self.cart[fruit_id] = {
+#                 "name": fruit.name,
+#                 "price": str(fruit.price),
+#                 "quantity": quantity,
+#                 "image": fruit.image.url if fruit.image else ""
+#             }
+#
+#         self.save()
+#
+#
+#
+#     def update(self, fruit, quantity, request=None):
+#         """Update item quantity in the cart"""
+#         fruit_id = str(fruit.id)
+#         available_stock = fruit.stock  # stock from ORM
+#
+#         if fruit_id in self.cart:
+#             if quantity > available_stock:
+#                 if request:
+#                     messages.error(request, f"Only {available_stock} {fruit.name} left in stock!")
+#                 return
+#             elif quantity > 0:
+#                 self.cart[fruit_id]["quantity"] = quantity
+#             else:
+#                 del self.cart[fruit_id]  # remove item if quantity is 0
+#
+#             self.session["cart"] = self.cart
+#             self.session.modified = True
+#         else:
+#             if request:
+#                 messages.error(request, "Fruit not found in cart")
+#
+#     def remove(self, fruit):
+#         """Remove fruit from cart"""
+#         fruit_id = str(fruit.id)
+#         if fruit_id in self.cart:
+#             del self.cart[fruit_id]
+#             self.save()
+#
+#     def save(self):
+#         """Save cart data in session"""
+#         self.session.modified = True
+#
+#     @property
+#     def items(self):
+#         """Returns a list of cart items with a single DB query"""
+#         cart_items = []
+#         fruit_ids = self.cart.keys()
+#         fruits = Fruit.objects.filter(id__in=fruit_ids)
+#         fruit_map = {str(fruit.id): fruit for fruit in fruits}
+#
+#         for fruit_id, item in self.cart.items():
+#             fruit = fruit_map.get(fruit_id)
+#             if not fruit:
+#                 continue  # skip if fruit was deleted from DB
+#             cart_items.append({
+#                 "id": fruit_id,
+#                 "name": item["name"],
+#                 "price": item["price"],
+#                 "quantity": item["quantity"],
+#                 'image': fruit.image
+#             })
+#
+#         return cart_items
+#
+#     @property
+#     def total(self):
+#         total_price = 0
+#         for item in self.cart.values():
+#             total_price += float(item["price"]) * int(item["quantity"])
+#         return total_price
+#
+#     def clear(self):
+#         """Empty the cart"""
+#         self.session["cart"] = {}
+#         self.save()
+#
+#     def __len__(self):
+#         """Return total quantity of items in the cart"""
+#         return sum(item["quantity"] for item in self.cart.values())
 
+
+
+
+
+
+
+
+
+
+from .models import Fruit
 
 class Cart:
     def __init__(self, request):
-        """Initialize the cart using the session"""
+        """Initialize the cart using the session."""
         self.session = request.session
         cart = self.session.get("cart")
-        if not cart:
-            cart = self.session["cart"] = {}  # Create an empty cart
+        if cart is None:
+            cart = {}
+            self.session["cart"] = cart
         self.cart = cart
 
-    def add(self, fruit, quantity=1):
-        """Add fruit to cart (or update quantity)"""
+    def add(self, fruit: Fruit, quantity: int = 1):
+        """Add a fruit to the cart or increment its quantity."""
         fruit_id = str(fruit.id)
-        available_stock = fruit.stock  # stock from ORM
-
-        if quantity > available_stock:
-            print(f"Cannot add {quantity} {fruit.name}. Only {available_stock} in stock!")
-            return
-
         if fruit_id in self.cart:
-            new_quantity = self.cart[fruit_id]["quantity"] + quantity
-            if new_quantity > available_stock:
-                print(f"Cannot add {quantity} {fruit.name}. Only {available_stock} in stock!")
-                return
-            self.cart[fruit_id]["quantity"] = new_quantity
+            self.cart[fruit_id]["quantity"] += int(quantity)
         else:
             self.cart[fruit_id] = {
                 "name": fruit.name,
-                "price": str(fruit.price),
-                "quantity": quantity,
-                "image": fruit.image.url if fruit.image else ""
+                "price": float(fruit.price),
+                "quantity": int(quantity),
+                "image": fruit.image,
             }
-
+        self._enforce_stock_limits(fruit_id, fruit)
         self.save()
 
-
-
-    def update(self, fruit, quantity, request=None):
-        """Update item quantity in the cart"""
+    def update(self, fruit: Fruit, quantity: int):
+        """Set an explicit quantity for a fruit in the cart."""
         fruit_id = str(fruit.id)
-        available_stock = fruit.stock  # stock from ORM
-
-        if fruit_id in self.cart:
-            if quantity > available_stock:
-                if request:
-                    messages.error(request, f"Only {available_stock} {fruit.name} left in stock!")
-                return
-            elif quantity > 0:
-                self.cart[fruit_id]["quantity"] = quantity
-            else:
-                del self.cart[fruit_id]  # remove item if quantity is 0
-
-            self.session["cart"] = self.cart
-            self.session.modified = True
+        q = max(0, int(quantity))
+        if q == 0:
+            if fruit_id in self.cart:
+                del self.cart[fruit_id]
         else:
-            if request:
-                messages.error(request, "Fruit not found in cart")
+            self.cart[fruit_id] = {
+                "name": fruit.name,
+                "price": float(fruit.price),
+                "quantity": q,
+                "image": fruit.image,
+            }
+            self._enforce_stock_limits(fruit_id, fruit)
+        self.save()
 
-    def remove(self, fruit):
-        """Remove fruit from cart"""
+    def remove(self, fruit: Fruit):
         fruit_id = str(fruit.id)
         if fruit_id in self.cart:
             del self.cart[fruit_id]
             self.save()
 
-    def save(self):
-        """Save cart data in session"""
-        self.session.modified = True
-
-    @property
     def items(self):
-        """Returns a list of cart items with a single DB query"""
-        cart_items = []
-        fruit_ids = self.cart.keys()
-        fruits = Fruit.objects.filter(id__in=fruit_ids)
-        fruit_map = {str(fruit.id): fruit for fruit in fruits}
-
+        """Yield cart items as dictionaries."""
         for fruit_id, item in self.cart.items():
-            fruit = fruit_map.get(fruit_id)
-            if not fruit:
-                continue  # skip if fruit was deleted from DB
-            cart_items.append({
+            yield {
                 "id": fruit_id,
-                "name": item["name"],
-                "price": item["price"],
-                "quantity": item["quantity"],
-                'image': fruit.image
-            })
+                **item,
+                "total": float(item["price"]) * int(item["quantity"]),
+            }
 
-        return cart_items
-
-    @property
-    def total(self):
-        total_price = 0
-        for item in self.cart.values():
-            total_price += float(item["price"]) * int(item["quantity"])
-        return total_price
+    def total(self) -> float:
+        return sum(float(i["price"]) * int(i["quantity"]) for i in self.cart.values())
 
     def clear(self):
-        """Empty the cart"""
         self.session["cart"] = {}
+        self.cart = self.session["cart"]
         self.save()
 
     def __len__(self):
-        """Return total quantity of items in the cart"""
-        return sum(item["quantity"] for item in self.cart.values())
+        return sum(int(i["quantity"]) for i in self.cart.values())
+
+    def save(self):
+        self.session.modified = True
+
+    def _enforce_stock_limits(self, fruit_id: str, fruit: Fruit):
+        """Do not allow quantity to exceed available stock (if stock is tracked)."""
+        try:
+            stock = int(getattr(fruit, "stock", 0))
+            if stock > 0 and self.cart[fruit_id]["quantity"] > stock:
+                self.cart[fruit_id]["quantity"] = stock
+        except Exception:
+            pass
