@@ -137,43 +137,43 @@ def cart_detail(request):
 
 
 
-# def update_cart(request, fruit_id):
-#     if request.method == "POST":
-#         cart = Cart(request)
-#         fruit = get_object_or_404(Fruit, id=fruit_id)
-#         quantity = int(request.POST.get("quantity", 1))
-#
-#         print(f"Updating fruit {fruit.name} (ID: {fruit_id}) to quantity {quantity}")
-#         cart = Cart(request)
-#         fruit = Fruit.objects.get(id=fruit_id)
-#         cart.update(fruit, quantity, request=request)
-#
-#
-#     return redirect("cart_detail")
-
-
-from django.http import JsonResponse
-
 def update_cart(request, fruit_id):
-    cart = Cart(request)
-    fruit = get_object_or_404(Fruit, id=fruit_id)
-
-    try:
+    if request.method == "POST":
+        cart = Cart(request)
+        fruit = get_object_or_404(Fruit, id=fruit_id)
         quantity = int(request.POST.get("quantity", 1))
-    except ValueError:
-        return JsonResponse({"error": "Invalid quantity."}, status=400)
 
-    message = ""
-    if fruit.stock and quantity > fruit.stock:
-        quantity = fruit.stock
-        message = f"Cannot add more than {fruit.stock} items (max stock reached)."
+        print(f"Updating fruit {fruit.name} (ID: {fruit_id}) to quantity {quantity}")
+        cart = Cart(request)
+        fruit = Fruit.objects.get(id=fruit_id)
+        cart.update(fruit, quantity, request=request)
 
-    cart.update(fruit, quantity)
-    cart_count = sum(item["quantity"] for item in cart.cart.values())
-    return JsonResponse({
-        "message": message or "Cart updated successfully.",
-        "cart_count": cart_count
-    })
+
+    return redirect("cart_detail")
+
+
+# from django.http import JsonResponse
+
+# def update_cart(request, fruit_id):
+#     cart = Cart(request)
+#     fruit = get_object_or_404(Fruit, id=fruit_id)
+#
+#     try:
+#         quantity = int(request.POST.get("quantity", 1))
+#     except ValueError:
+#         return JsonResponse({"error": "Invalid quantity."}, status=400)
+#
+#     message = ""
+#     if fruit.stock and quantity > fruit.stock:
+#         quantity = fruit.stock
+#         message = f"Cannot add more than {fruit.stock} items (max stock reached)."
+#
+#     cart.update(fruit, quantity)
+#     cart_count = sum(item["quantity"] for item in cart.cart.values())
+#     return JsonResponse({
+#         "message": message or "Cart updated successfully.",
+#         "cart_count": cart_count
+#     })
 
 
 
