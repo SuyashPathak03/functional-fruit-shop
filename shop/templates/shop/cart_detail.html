@@ -124,7 +124,8 @@ document.querySelectorAll(".update-cart-form").forEach(form => {
         e.preventDefault();
 
         const fruitId = this.dataset.fruitId;
-        const quantity = this.querySelector("input[name='quantity']").value;
+        const quantityInput = this.querySelector("input[name='quantity']");
+        const newQuantity = quantityInput.value;
 
         fetch(`/cart/update/${fruitId}/`, {
             method: "POST",
@@ -132,11 +133,11 @@ document.querySelectorAll(".update-cart-form").forEach(form => {
                 "X-CSRFToken": csrftoken,
                 "X-Requested-With": "XMLHttpRequest",
             },
-            body: new URLSearchParams({quantity: quantity})
+            body: new URLSearchParams({quantity: newQuantity})
         })
         .then(response => response.json())
         .then(data => {
-            // Show popup
+            // Popup message
             if (data.message) {
                 Swal.fire({
                     icon: data.message.includes("Cannot") ? "warning" : "success",
@@ -146,20 +147,17 @@ document.querySelectorAll(".update-cart-form").forEach(form => {
                 });
             }
 
-            // If stock exceeded → stop, keep old values
-            if (data.message && data.message.includes("Cannot")) {
-                return;
-            }
+            // ✅ Always reset quantity field to server's valid value
+            quantityInput.value = data.item_quantity;
 
-            // Remove if quantity is 0
+            // Update price or remove item if quantity is 0
             if (data.item_quantity > 0) {
                 document.querySelector(`#item-price-${fruitId}`).innerText = "₹" + data.item_total;
-                form.querySelector("input[name='quantity']").value = data.item_quantity;
             } else {
                 document.querySelector(`#cart-row-${fruitId}`).remove();
             }
 
-            // Update totals
+            // Update cart total & count
             document.querySelector("#cart-total").innerText = "₹" + data.cart_total;
             document.querySelector("#cart-count").innerText = data.cart_count;
         })
