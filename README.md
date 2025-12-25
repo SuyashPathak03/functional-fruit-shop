@@ -1,7 +1,3 @@
-I **checked the repository you shared** ([https://github.com/SuyashPathak03/functional-fruit-shop](https://github.com/SuyashPathak03/functional-fruit-shop)) but **there’s no existing `README.md` content visible** in the default view online. So I’ll create a clear and helpful **README** you can add to your project.
-
----
-
 ## ✅ **README for Functional Fruit Shop**
 
 ---
